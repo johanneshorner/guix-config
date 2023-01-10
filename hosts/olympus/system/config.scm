@@ -16,7 +16,15 @@
     (elogind-service)
     (service dhcp-client-service-type)
     (dbus-service)
-    %base-services))
+    (modify-services %base-services
+             (guix-service-type config => (guix-configuration
+               (inherit config)
+               (substitute-urls
+                (append (list "https://substitutes.nonguix.org")
+                  %default-substitute-urls))
+               (authorized-keys
+                (append (list (local-file "../../../authorized_keys/nonguix.pub"))
+                  %default-authorized-guix-keys)))))))
 
 (define root-device (uuid "7e9936b8-7d37-4bc9-974b-f2bd290f7eff"))
 (define efi-device (uuid "492A-719E" 'fat))
@@ -67,7 +75,7 @@
 
   (bootloader (bootloader-configuration
                (bootloader grub-efi-bootloader)
-               (target "/boot/efi")
+               (targets (list "/boot/efi"))
                (keyboard-layout keyboard-layout)))
 
   (file-systems my-file-systems)
